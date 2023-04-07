@@ -2,26 +2,24 @@ import os
 import subprocess
 import time
 
-from parameters import *
+from parameters import stream_key, endpoint, input_video_device, input_audio_device, input_resolution, output_resolution, input_framerate, output_framerate, preset
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+                  
+ffmpeg_command = (f"""
+    ffmpeg -nostdin -f v4l2 -video_size {input_resolution} -framerate {input_framerate} -i {input_video_device} -f alsa -i {input_audio_device} \
+    -i {BASE_DIR}/image/location.svg -filter_complex "\
+    [0:v]transpose=2,transpose=2[v]; \
+    [v][2:v]overlay=10:18, drawbox=x=5:y=14:w=240:h=28:color=black@0.5:t=fill, \
+    drawtext=fontfile={BASE_DIR}/fonts/UbuntuNerdFont.ttf:text='Buenos Aires, Argentina':fontcolor=white:fontsize=18:x=35:y=20" \
+    -c:v libx264 -preset {preset} -pix_fmt yuv420p -s {output_resolution} -r {output_framerate} -b:v 2000k -force_key_frames "expr:gte(t,n_forced*2)" \
+    -c:a libmp3lame -ar 44100 -b:a 128k -bufsize 2000k -f flv {endpoint}{stream_key}
+""")
 
-ffmpeg_command = (
-    f"ffmpeg -nostdin -f v4l2 -vcodec mjpeg -s {input_resolution} -framerate {input_framerate} -i {input_video_device} "
-    f"-f alsa -i {input_audio_device} "
-    f"-i '{BASE_DIR}/image/location.svg' "
-    # f"-filter_complex overlay=x=20:y=17,drawtext=fontfile='{BASE_DIR}/fonts/UbuntuNerdFont.ttf':text='Bariloche, Argentina':fontcolor=white:fontsize=15:box=1:boxcolor=black@0.5:boxborderw=3:x=43:y=20 "
-    f"-vcodec libx264 -rtbufsize 2000k -s {output_resolution} -framerate {output_framerate} "
-    f"-preset {preset} -pix_fmt yuv420p -crf {crf} -force_key_frames 'expr:gte(t,n_forced*2)' "
-    "-minrate 850k -maxrate 1500k -b:v 1000k -bufsize 1000k -acodec libmp3lame -rtbufsize 2000k "
-    "-b:v 96k -ar 44100 -f flv "
-    f"rtmp://bue01.contribute.live-video.net/app/{stream_key}"
-)
 
 print(ffmpeg_command)
 
 i = 0
-status = False
 seg = 60
 
 def connection_status():
@@ -88,4 +86,3 @@ while i < 300:
         i += 1
 
     time.sleep(seg)
-
