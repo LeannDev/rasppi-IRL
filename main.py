@@ -15,6 +15,7 @@ def button_callback(channel):
     # if there is internet connection, start ffmpeg
     if connection_status() and not check_process('ffmpeg'):
         ffmpeg = start_ffmpeg()
+        time.sleep(10)
 
     else:
         kill_process('ffmpeg')

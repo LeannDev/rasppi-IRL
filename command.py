@@ -86,7 +86,7 @@ def kill_process(process_name):
 
     try:
         # Get the PID of the process
-        process_pid = subprocess.check_output(['pgrep', process_name])
+        process_pid = subprocess.check_output(['pgrep', process_name]).decode().strip()
         
         # kill the process
         subprocess.call(['kill', process_pid])
