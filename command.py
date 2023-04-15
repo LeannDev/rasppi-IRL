@@ -12,7 +12,9 @@ ffmpeg_command = (
     -vcodec libx264 -rtbufsize 2000k -s {output_resolution} -framerate {output_framerate} \
     -preset {preset} -pix_fmt yuv420p -crf {crf} -force_key_frames 'expr:gte(t,n_forced*2)' \
     -minrate 850k -maxrate 1500k -b:v 1000k -bufsize 1000k -acodec libmp3lame -rtbufsize 2000k \
-    -b:v 96k -ar 44100 -f flv \
+    -b:v 96k -ar 44100 \
+    -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 10 \
+    -f flv \
     {endpoint}{stream_key}"""
 )
 
