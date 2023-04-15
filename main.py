@@ -11,6 +11,7 @@ GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Function to be executed when the button is pressed
 def button_callback(channel):
+    time.sleep(0.05) # Wait 50ms to avoid button bounce
 
     # Check if ffmpeg process is currently running
     process = check_process('ffmpeg')
