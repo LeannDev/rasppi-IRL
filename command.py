@@ -29,7 +29,6 @@ ffmpeg_command = (
 
 print(ffmpeg_command)
 
-i = 0
 seg = 60
 
 def connection_status():
@@ -52,7 +51,7 @@ def start_ffmpeg():
         time.sleep(5)
         print('Start FFMPEG')
     except:
-        ffmpeg = False
+        ffmpeg = None
         print('Start FFMPEG ERROR')
     
     return ffmpeg
@@ -70,29 +69,52 @@ def ffmpeg_status(ffmpeg):
         time.sleep(5)
         print('Subprocess kill')
         return False
+    
+def check_process(process_name):
+    try:
+        output = subprocess.check_output(["ps", "ax"])
+    except subprocess.CalledProcessError:
+        return False
 
-ffmpeg = start_ffmpeg()
-time.sleep(10)
+    for line in output.decode().splitlines():
+        if process_name in line:
+            return True
 
-while i < 300:
+    return False
 
-    if connection_status():
-        if not ffmpeg_status(ffmpeg):
-            ffmpeg = start_ffmpeg()
-            print('FFMPEG ', ffmpeg)
-            i = 0
-            seg = 60
-            time.sleep(10)
+def kill_process(process_name):
 
-        else:
-            seg = 60
-            i = 0
+    try:
+        # Get the PID of the process
+        process_pid = subprocess.check_output(['pgrep', process_name])
         
-    else:
-        if ffmpeg:
-            ffmpeg.kill()
+        # kill the process
+        subprocess.call(['kill', process_pid])
 
-        seg = 1
-        i += 1
+        return True
 
-    time.sleep(seg)
+    except subprocess.CalledProcessError:
+        return False
+
+# ffmpeg = start_ffmpeg()
+# time.sleep(10)
+
+# while True:
+
+#     if connection_status():
+#         if not ffmpeg_status(ffmpeg):
+#             ffmpeg = start_ffmpeg()
+#             print('FFMPEG ', ffmpeg)
+#             seg = 60
+#             time.sleep(10)
+
+#         else:
+#             seg = 60
+        
+#     else:
+#         if ffmpeg:
+#             ffmpeg.kill()
+
+#         seg = 1
+
+#     time.sleep(seg)
