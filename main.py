@@ -9,9 +9,21 @@ GPIO.setmode(GPIO.BCM)
 # Configure GPIO pin 3 as input with internal pull-up
 GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+last_button_press_time = 0
+
 # Function to be executed when the button is pressed
 def button_callback(channel):
-    time.sleep(0.05) # Wait 50ms to avoid button bounce
+
+    global last_button_press_time
+
+    # Calculate time since last button press
+    time_since_last_press = time.monotonic() - last_button_press_time
+
+    # Ignore if button was pressed too soon after the last press
+    if time_since_last_press < 0.5:
+        return
+
+    last_button_press_time = time.monotonic()
 
     # Check if there is an active network connection
     if connection_status():
